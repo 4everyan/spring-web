@@ -12,7 +12,7 @@
 #include "FontRenderer.h"
 #include "Camera.h"
 #include "ChainSystem.h"
-#include "OdeSystem.h"
+#include "OdeFramedSolver.h"
 
 
 class SpringApplication: public Application
