@@ -8,6 +8,7 @@
 #ifndef NODESYSTEMBUILDER_H_
 #define NODESYSTEMBUILDER_H_
 
+#include <glm/glm.hpp>
 #include "INodeSystem.h"
 
 
@@ -17,17 +18,18 @@ public:
 	NodeSystemBuilder();
 	~NodeSystemBuilder();
 
-	NodeSystemBuilder& reserve(size_t count);
-	NodeSystemBuilder& linkNodes(size_t n1, size_t n2);
+	void reserve(size_t count);
+	void linkNodes(size_t n1, size_t n2);
 
-	NodeSystemBuilder& fillSpaceByLength(double length);
-	NodeSystemBuilder& fillSpaceByNodeCount(size_t nodeCount);
+	void fillSpaceByLength(double length);
+	void fillSpaceByNodeCount(size_t nodeCount);
 
-	NodeSystemBuilder& setConstantEqAngle(double equilibriumAngle);
-	NodeSystemBuilder& setCalculatedEqAngle();
-	NodeSystemBuilder& setConstantEqSpringLength(double equilibriumLength);
-	NodeSystemBuilder& setCalculatedEqSpringLength();
+	void setConstantEqAngle(double equilibriumAngle);
+	void setCalculatedEqAngle();
+	void setConstantEqSpringLength(double equilibriumLength);
+	void setCalculatedEqSpringLength();
 
+	size_t addNode(double mass, const glm::dvec3& initialPosition);
 	std::shared_ptr<INodeSystem> create();
 
 private:

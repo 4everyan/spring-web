@@ -16,13 +16,15 @@ class INode
 public:
 	virtual ~INode() {}
 
-	virtual void applyForce(const glm::dvec3& force) = 0;
-	virtual void fix(bool fixed) = 0;
-	virtual bool isFixed() const = 0;
-
+	virtual size_t getId() const = 0;
+	virtual double getMass() const = 0;
 	virtual glm::dvec3 getPosition() const = 0;
 	virtual glm::dvec3 getVelocity() const = 0;
 	virtual glm::dvec3 getAcceleration() const = 0;
+
+	virtual void applyForce(const glm::dvec3& force) = 0;
+	virtual void fix(bool fixed) = 0;
+	virtual bool isFixed() const = 0;
 };
 
 #endif /* INODE_H_ */

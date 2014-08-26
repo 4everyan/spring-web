@@ -16,29 +16,53 @@
 class Node: public INode
 {
 public:
-	Node(double mass)
-		: fixed(false), mass(mass) {}
-
-	Node(double mass, const glm::dvec3& initialPos)
-		: fixed(false)
+	Node(size_t id, double mass, const glm::dvec3& initialPos)
+		: id(id)
+		, fixed(false)
 		, mass(mass)
 		, position(initialPos) {}
 
-	Node(double mass, const glm::dvec3& initialPos, const glm::dvec3& initialVel)
-		: fixed(false)
-		, mass(mass)
-		, position(initialPos)
-		, velocity(initialVel) {}
+	size_t getId() const override {
+		return id;
+	}
+
+	double getMass() const override {
+		return mass;
+	}
+
+	glm::dvec3 getPosition() const override {
+		return position;
+	}
+
+	glm::dvec3 getVelocity() const override {
+		if (fixed)
+			return {0.0, 0.0, 0.0};
+		return velocity;
+	}
+
+	glm::dvec3 getAcceleration() const override {
+		if (fixed)
+			return {0.0, 0.0, 0.0};
+		return acceleration;
+	}
+
+	void fix(bool fixed) override {
+		this->fixed = fixed;
+	}
+
+	bool isFixed() const override {
+		return fixed;
+	}
+
+	void applyForce(const glm::dvec3& force) override {
+		totalForce += force;
+	}
 
 	void resetForce() {
 		totalForce = glm::dvec3(0.0);
 	}
 
-	void applyForce(const glm::dvec3& force) {
-		totalForce += force;
-	}
-
-	void update(const glm::dvec3& _position, const glm::dvec3& _velocity) {
+	void updateWithNewState(const glm::dvec3& _position, const glm::dvec3& _velocity) {
 		if (fixed)
 			return;
 		position = _position;
@@ -46,31 +70,8 @@ public:
 		acceleration = totalForce / mass;
 	}
 
-	glm::dvec3 getPosition() const {
-		return position;
-	}
-
-	glm::dvec3 getVelocity() const {
-		if (fixed)
-			return {0.0, 0.0, 0.0};
-		return velocity;
-	}
-
-	glm::dvec3 getAcceleration() const {
-		if (fixed)
-			return {0.0, 0.0, 0.0};
-		return acceleration;
-	}
-
-	void fix(bool fixed) {
-		this->fixed = fixed;
-	}
-
-	bool isFixed() const {
-		return fixed;
-	}
-
 private:
+	size_t id;
 	bool fixed;
 	double mass;
 	glm::dvec3 totalForce;
@@ -120,13 +121,15 @@ class FillByPointNumber: public SpaceFiller
 class NodeSystemBuilder::Implementation
 {
 public:
-	std::vector<std::shared_ptr<INode>> nodes;
-	std::set<std::shared_ptr<INode>> uniqueNodes;
-
+	std::vector<std::shared_ptr<Node>> nodes;
 	std::set<std::shared_ptr<IConstraint>> constraints;
 	std::set<std::pair<size_t,size_t>> links;
 
 	std::unique_ptr<SpaceFiller> spaceFiller;
+
+	std::shared_ptr<INodeSystem> create() {
+		return nullptr;
+	}
 };
 
 NodeSystemBuilder::NodeSystemBuilder() {
@@ -137,38 +140,37 @@ NodeSystemBuilder::~NodeSystemBuilder() {
 	delete me;
 }
 
-NodeSystemBuilder& NodeSystemBuilder::reserve(size_t count) {
+void NodeSystemBuilder::reserve(size_t count) {
 	me->nodes.reserve(count);
-	return *this;
 }
 
-NodeSystemBuilder& NodeSystemBuilder::linkNodes(size_t n1, size_t n2) {
+void NodeSystemBuilder::linkNodes(size_t n1, size_t n2) {
 	me->links.insert(std::make_pair(n1, n2));
-	return *this;
 }
 
-NodeSystemBuilder& NodeSystemBuilder::fillSpaceByLength(double length) {
-	return *this;
+void NodeSystemBuilder::fillSpaceByLength(double length) {
 }
 
-NodeSystemBuilder& NodeSystemBuilder::fillSpaceByNodeCount(size_t nodeCount) {
-	return *this;
+void NodeSystemBuilder::fillSpaceByNodeCount(size_t nodeCount) {
 }
 
-NodeSystemBuilder& NodeSystemBuilder::setConstantEqAngle(double equilibriumAngle) {
-	return *this;
+void NodeSystemBuilder::setConstantEqAngle(double equilibriumAngle) {
 }
 
-NodeSystemBuilder& NodeSystemBuilder::setCalculatedEqAngle() {
-	return *this;
+void NodeSystemBuilder::setCalculatedEqAngle() {
 }
 
-NodeSystemBuilder& NodeSystemBuilder::setConstantEqSpringLength(double equilibriumLength) {
-	return *this;
+void NodeSystemBuilder::setConstantEqSpringLength(double equilibriumLength) {
 }
 
-NodeSystemBuilder& NodeSystemBuilder::setCalculatedEqSpringLength() {
-	return *this;
+void NodeSystemBuilder::setCalculatedEqSpringLength() {
+}
+
+size_t NodeSystemBuilder::addNode(double mass, const glm::dvec3& initialPosition) {
+	size_t newId = me->nodes.size();
+	auto node = std::make_shared<Node>(newId, mass, initialPosition);
+	me->nodes.push_back(node);
+	return newId;
 }
 
 std::shared_ptr<INodeSystem> NodeSystemBuilder::create() {
