@@ -5,11 +5,11 @@
 		@length длина цепочки
 		@mass масса всей цепочки
 		@width толщина цепочки; используется только при визуализации -->
-	<system nodecount="5" length="5.0" mass="1.0" width="0.1" />
+	<system nodecount="10" length="5.0" mass="1.0" width="0.1" />
 
 	<!--Параметры сопротивления среды:
 		@viscosity вязкость среды -->
-	<resistance viscosity="0.4" />
+	<resistance viscosity="0.1" />
 
 	<!--Параметры продольных пружин:
 		@stiffness жесткость пружины -->

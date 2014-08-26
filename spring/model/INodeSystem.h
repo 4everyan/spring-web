@@ -9,7 +9,7 @@
 #define INODESYSTEM_H_
 
 #include <glm/glm.hpp>
-#include "Node.h"
+#include "INode.h"
 
 
 class INodeSystem
@@ -24,7 +24,7 @@ public:
 	virtual ~INodeSystem() {}
 
     virtual size_t getNumberOfNodes() const = 0;
-    virtual std::shared_ptr<Node> getNode(size_t id) const = 0;
+    virtual std::shared_ptr<INode> getNode(size_t id) const = 0;
 };
 
 #endif /* INODESYSTEM_H_ */

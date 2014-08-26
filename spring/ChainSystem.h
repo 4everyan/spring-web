@@ -8,7 +8,6 @@
 
 #include <vector>
 #include <list>
-#include <tuple>
 #include <glm/glm.hpp>
 #include "gsl_helper.h"
 #include "OdeSystem.h"

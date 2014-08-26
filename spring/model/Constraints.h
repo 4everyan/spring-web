@@ -12,7 +12,6 @@
 #include <glm/glm.hpp>
 #include "IConstraint.h"
 #include "INodeSystem.h"
-#include "Node.h"
 
 
 class ResistanceForce: public IConstraint
@@ -34,11 +33,11 @@ public:
 		, length(length)
 		, stiffness(stiffness) {}
 
-	void setFirstNode(const std::shared_ptr<Node>& firstNode) {
+	void setFirstNode(const std::shared_ptr<INode>& firstNode) {
 		this->firstNode = firstNode;
 	}
 
-	void setSecondNode(const std::shared_ptr<Node>& secondNode) {
+	void setSecondNode(const std::shared_ptr<INode>& secondNode) {
 		this->secondNode = secondNode;
 	}
 
@@ -47,8 +46,8 @@ public:
 private:
     double length;
     double stiffness;
-	std::shared_ptr<Node> firstNode;
-	std::shared_ptr<Node> secondNode;
+	std::shared_ptr<INode> firstNode;
+	std::shared_ptr<INode> secondNode;
 };
 
 
@@ -60,15 +59,15 @@ public:
 	TorsionSpringForce(std::weak_ptr<INodeSystem> system, double stiffness)
 		: IConstraint(system), stiffness(stiffness) {}
 
-	void setCenter(std::shared_ptr<Node> center) {
+	void setCenter(std::shared_ptr<INode> center) {
 		this->center = center;
 	}
 
-	void setLeft(std::shared_ptr<Node> left) {
+	void setLeft(std::shared_ptr<INode> left) {
 		this->left = left;
 	}
 
-	void setRight(std::shared_ptr<Node> right) {
+	void setRight(std::shared_ptr<INode> right) {
 		this->right = right;
 	}
 
@@ -76,9 +75,9 @@ public:
 
 private:
 	double stiffness;
-	std::shared_ptr<Node> left;
-	std::shared_ptr<Node> center;
-	std::shared_ptr<Node> right;
+	std::shared_ptr<INode> left;
+	std::shared_ptr<INode> center;
+	std::shared_ptr<INode> right;
 };
 
 
@@ -89,11 +88,11 @@ public:
 		: IActivatableConstraint(system)
 		, value(value) {}
 
-	void setFromNode(const std::shared_ptr<Node>& fromNode) {
+	void setFromNode(const std::shared_ptr<INode>& fromNode) {
 		this->fromNode = fromNode;
 	}
 
-	void setToNode(const std::shared_ptr<Node>& toNode) {
+	void setToNode(const std::shared_ptr<INode>& toNode) {
 		this->toNode = toNode;
 	}
 
@@ -101,19 +100,19 @@ public:
 
 private:
     double value;
-	std::shared_ptr<Node> fromNode;
-	std::shared_ptr<Node> toNode;
+	std::shared_ptr<INode> fromNode;
+	std::shared_ptr<INode> toNode;
 };
 
 
 class SingleNodeConstantForce: public IActivatableConstraint
 {
 public:
-	SingleNodeConstantForce(std::weak_ptr<INodeSystem> system, std::shared_ptr<Node> node, glm::dvec3 force)
+	SingleNodeConstantForce(std::weak_ptr<INodeSystem> system, std::shared_ptr<INode> node, glm::dvec3 force)
 		: IActivatableConstraint(system), force(force) {}
 	void solve() override;
 private:
-    std::shared_ptr<Node> node;
+    std::shared_ptr<INode> node;
     glm::dvec3 force;
 };
 
