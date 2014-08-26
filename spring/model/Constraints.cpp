@@ -8,7 +8,7 @@
 #include "Constraints.h"
 
 
-void ResistanceForce::solve() {
+void ResistanceConstraint::solve() {
 	if (auto sys = system.lock()) {
 
 		for (size_t i = 0; i < sys->getNumberOfNodes(); ++i ) {

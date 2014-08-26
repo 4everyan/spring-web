@@ -14,10 +14,10 @@
 #include "INodeSystem.h"
 
 
-class ResistanceForce: public IConstraint
+class ResistanceConstraint: public IConstraint
 {
 public:
-    ResistanceForce(std::weak_ptr<INodeSystem> system, double viscosity)
+    ResistanceConstraint(std::weak_ptr<INodeSystem> system, double viscosity)
         : IConstraint(system), viscosity(viscosity) {}
 	void solve() override;
 private:
