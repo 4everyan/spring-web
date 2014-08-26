@@ -25,10 +25,10 @@ private:
 };
 
 
-class SpringForce: public IConstraint
+class SpringConstraint: public IConstraint
 {
 public:
-    SpringForce(std::weak_ptr<INodeSystem> system, double length, double stiffness)
+    SpringConstraint(std::weak_ptr<INodeSystem> system, double length, double stiffness)
         : IConstraint(system)
 		, length(length)
 		, stiffness(stiffness) {}
@@ -51,12 +51,12 @@ private:
 };
 
 
-class TorsionSpringForce: public IConstraint
+class TorsionSpringConstraint: public IConstraint
 {
 public:
 	const double angleCompareEpsilon = 0.001 * M_PI;
 
-	TorsionSpringForce(std::weak_ptr<INodeSystem> system, double stiffness)
+	TorsionSpringConstraint(std::weak_ptr<INodeSystem> system, double stiffness)
 		: IConstraint(system), stiffness(stiffness) {}
 
 	void setCenter(std::shared_ptr<INode> center) {
@@ -81,10 +81,10 @@ private:
 };
 
 
-class NodeToNodeForce: public IActivatableConstraint
+class NodeToNodeConstraint: public IActivatableConstraint
 {
 public:
-	NodeToNodeForce(std::weak_ptr<INodeSystem> system, double value)
+	NodeToNodeConstraint(std::weak_ptr<INodeSystem> system, double value)
 		: IActivatableConstraint(system)
 		, value(value) {}
 
@@ -105,10 +105,10 @@ private:
 };
 
 
-class SingleNodeConstantForce: public IActivatableConstraint
+class SingleNodeConstantConstraint: public IActivatableConstraint
 {
 public:
-	SingleNodeConstantForce(std::weak_ptr<INodeSystem> system, std::shared_ptr<INode> node, glm::dvec3 force)
+	SingleNodeConstantConstraint(std::weak_ptr<INodeSystem> system, std::shared_ptr<INode> node, glm::dvec3 force)
 		: IActivatableConstraint(system), force(force) {}
 	void solve() override;
 private:

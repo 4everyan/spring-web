@@ -19,7 +19,7 @@ void ResistanceForce::solve() {
 }
 
 
-void SpringForce::solve() {
+void SpringConstraint::solve() {
 
     if (!(firstNode && secondNode))
     	return;
@@ -32,7 +32,7 @@ void SpringForce::solve() {
 }
 
 
-void TorsionSpringForce::solve() {
+void TorsionSpringConstraint::solve() {
 
 	if (!(left && right && center))
 		return;
@@ -65,7 +65,7 @@ void TorsionSpringForce::solve() {
 }
 
 
-void NodeToNodeForce::solve() {
+void NodeToNodeConstraint::solve() {
 	if (!enabled)
 		return;
     glm::dvec3 f = toNode->getPosition() - fromNode->getPosition();
@@ -73,7 +73,7 @@ void NodeToNodeForce::solve() {
 }
 
 
-void SingleNodeConstantForce::solve() {
+void SingleNodeConstantConstraint::solve() {
 	if (enabled)
 		node->applyForce(force);
 }
