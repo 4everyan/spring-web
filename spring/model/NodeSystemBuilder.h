@@ -18,18 +18,12 @@ public:
 	NodeSystemBuilder();
 	~NodeSystemBuilder();
 
-	void reserve(size_t count);
+	size_t addNode(double mass, glm::dvec3 pos, glm::dvec3 vel);
+	size_t addNode(double mass, glm::dvec3 pos);
+
+	void setSubNodeMass(double mass);
 	void linkNodes(size_t n1, size_t n2);
 
-	void fillSpaceByLength(double length);
-	void fillSpaceByNodeCount(size_t nodeCount);
-
-	void setConstantEqAngle(double equilibriumAngle);
-	void setCalculatedEqAngle();
-	void setConstantEqSpringLength(double equilibriumLength);
-	void setCalculatedEqSpringLength();
-
-	size_t addNode(double mass, const glm::dvec3& initialPosition);
 	std::shared_ptr<INodeSystem> create();
 
 private:

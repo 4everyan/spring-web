@@ -16,11 +16,12 @@
 class Node: public INode
 {
 public:
-	Node(size_t id, double mass, const glm::dvec3& initialPos)
+	Node(size_t id, double mass, glm::dvec3 pos, glm::dvec3 vel)
 		: id(id)
 		, fixed(false)
 		, mass(mass)
-		, position(initialPos) {}
+		, position(pos)
+		, velocity(vel) {}
 
 	size_t getId() const override {
 		return id;
@@ -100,80 +101,97 @@ public:
 };
 
 
-class SpaceFiller
-{
-public:
-	virtual ~SpaceFiller() {}
-	virtual std::list<glm::dvec3> fill(const glm::dvec3& from, const glm::dvec3& to) = 0;
-};
+struct BuildNode {
 
+	std::set<size_t> next;
+	std::set<size_t> prev;
+	size_t id;
 
-class FillByLength: public SpaceFiller
-{
-};
-
-
-class FillByPointNumber: public SpaceFiller
-{
+	BuildNode(size_t id): id(id) {}
 };
 
 
 class NodeSystemBuilder::Implementation
 {
 public:
-	std::vector<std::shared_ptr<Node>> nodes;
-	std::set<std::shared_ptr<IConstraint>> constraints;
+	std::vector<std::shared_ptr<BuildNode>> buildNodes;
 	std::set<std::pair<size_t,size_t>> links;
-
-	std::unique_ptr<SpaceFiller> spaceFiller;
-
-	std::shared_ptr<INodeSystem> create() {
-		return nullptr;
-	}
+	std::shared_ptr<NodeSystemImpl> model;
+	double subNodeMass = 1.0;
 };
+
 
 NodeSystemBuilder::NodeSystemBuilder() {
 	me = new Implementation;
+	me->model.reset(new NodeSystemImpl);
 }
 
 NodeSystemBuilder::~NodeSystemBuilder() {
 	delete me;
 }
 
-void NodeSystemBuilder::reserve(size_t count) {
-	me->nodes.reserve(count);
-}
-
 void NodeSystemBuilder::linkNodes(size_t n1, size_t n2) {
-	me->links.insert(std::make_pair(n1, n2));
+	me->links.insert(std::make_pair(n1,n2));
 }
 
-void NodeSystemBuilder::fillSpaceByLength(double length) {
-}
+size_t NodeSystemBuilder::addNode(double mass, glm::dvec3 pos, glm::dvec3 vel) {
 
-void NodeSystemBuilder::fillSpaceByNodeCount(size_t nodeCount) {
-}
+	size_t newId = me->buildNodes.size();
+	auto buildNode = std::make_shared<BuildNode>(newId);
+	auto modelNode = std::make_shared<Node>(newId, mass, pos, vel);
 
-void NodeSystemBuilder::setConstantEqAngle(double equilibriumAngle) {
-}
+	me->buildNodes.push_back(buildNode);
+	me->model->nodes.push_back(modelNode);
 
-void NodeSystemBuilder::setCalculatedEqAngle() {
-}
-
-void NodeSystemBuilder::setConstantEqSpringLength(double equilibriumLength) {
-}
-
-void NodeSystemBuilder::setCalculatedEqSpringLength() {
-}
-
-size_t NodeSystemBuilder::addNode(double mass, const glm::dvec3& initialPosition) {
-	size_t newId = me->nodes.size();
-	auto node = std::make_shared<Node>(newId, mass, initialPosition);
-	me->nodes.push_back(node);
 	return newId;
 }
 
+size_t NodeSystemBuilder::addNode(double mass, glm::dvec3 pos) {
+	return addNode(mass, pos, glm::dvec3(0.0));
+}
+
+std::list<glm::dvec3> fillSpace(glm::dvec3 from, glm::dvec3 to, size_t subNodes) {
+
+	std::list<glm::dvec3> list;
+	glm::dvec3 segment = (from - to) / (subNodes + 1.0);
+	for (size_t i = 1; i <= subNodes; ++i)
+		list.push_back(from + segment * (double) i);
+	return list;
+}
+
+void NodeSystemBuilder::setSubNodeMass(double mass) {
+	me->subNodeMass = mass;
+}
+
 std::shared_ptr<INodeSystem> NodeSystemBuilder::create() {
+
 	auto system = std::make_shared<NodeSystemImpl>();
+	for (auto& link: me->links) {
+
+		const int subNodeCount = 2;
+
+		auto nodeFrom = me->model->getNode(link.first);
+		auto nodeTo = me->model->getNode(link.second);
+		auto points = fillSpace(nodeFrom->getPosition(), nodeTo->getPosition(), subNodeCount);
+
+		std::vector<size_t> subNodeIds;
+		for (glm::dvec3& point: points) {
+			subNodeIds.push_back(addNode(me->subNodeMass, point));
+		}
+
+		for (size_t i = 0; i < subNodeIds.size() - 1; ++i) {
+			auto bnode = me->buildNodes[i];
+			bnode->next.insert(subNodeIds[i + 1]);
+		}
+		for (size_t i = 1; i < subNodeIds.size(); ++i) {
+			auto bnode = me->buildNodes[i];
+			bnode->prev.insert(subNodeIds[i - 1]);
+		}
+		auto bnodeFrom = me->buildNodes[link.first];
+		auto bnodeTo = me->buildNodes[link.second];
+
+		bnodeFrom->next.insert(subNodeIds.front());
+		bnodeTo->prev.insert(subNodeIds.back());
+	}
 	return system;
 }
