@@ -11,8 +11,9 @@
 #include "Application.h"
 #include "FontRenderer.h"
 #include "Camera.h"
-#include "ChainSystem.h"
-#include "model/OdeFramedSolver.h"
+#include "model/INodeSystem.h"
+#include "NodeSystemView.h"
+#include "NodeSystemController.h"
 
 
 class SpringApplication: public Application
@@ -36,14 +37,14 @@ public:
 
 private:
 	bool drawDebugInfo;
-	float chainWidth;
 	std::shared_ptr<FontRenderer> systemFont;
-	std::shared_ptr<ChainSystem> system;
-	std::shared_ptr<OdeFramedSolver> solver;
 	std::shared_ptr<Camera> camera;
-	std::shared_ptr<IForce> appliedForce;
 
-	bool InitializePointChain();
+	std::shared_ptr<INodeSystem> model;
+	std::shared_ptr<NodeSystemView> view;
+	std::shared_ptr<NodeSystemController> controller;
+
+	bool InitializeSystem();
 };
 
 #endif /* SPRINGAPPLICATION_H_ */

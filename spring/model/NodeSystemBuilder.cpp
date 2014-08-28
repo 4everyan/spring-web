@@ -92,8 +92,19 @@ public:
     	return nodes.at(id);
     }
 
+    virtual size_t getNumberOfLinks() const override {
+    	return links.size();
+    }
+
+    virtual std::pair<size_t,size_t> getLink(size_t id) const override {
+    	return links.at(id);
+    }
+
     // calculate derivative vector and store it in outputDerivs
     virtual int getDerivative(double t, gsl::base_const_vector& inputCoords, gsl::base_vector& outputDerivs) {
+
+    	//std::cout << inputCoords;
+    	//throw 0;
 
         // nullifying node forces
         for (auto& node: nodes) {
@@ -109,6 +120,9 @@ public:
         size_t stride = INodeSystem::CoordsNum;
         size_t size = nodes.size();
 
+        auto x = gsl::vector_const_view(inputCoords, X, stride, size);
+        auto y = gsl::vector_const_view(inputCoords, Y, stride, size);
+        auto z = gsl::vector_const_view(inputCoords, Z, stride, size);
         auto u = gsl::vector_const_view(inputCoords, U, stride, size);
         auto v = gsl::vector_const_view(inputCoords, V, stride, size);
         auto w = gsl::vector_const_view(inputCoords, W, stride, size);
@@ -123,6 +137,9 @@ public:
         glm::dvec3 derivs;
 
         for (size_t n = 0; n < nodes.size(); ++n) {
+
+            nodes[n]->updateWithNewState(glm::dvec3(x[n], y[n], z[n]), glm::dvec3(u[n], v[n], w[n]));
+
         	auto vel = nodes[n]->getVelocity();
         	auto acc = nodes[n]->getAcceleration();
 
@@ -145,6 +162,7 @@ public:
 public:
 	std::vector<std::shared_ptr<Node>> nodes;
 	std::set<std::shared_ptr<IConstraint>> constraints;
+	std::vector<std::pair<size_t,size_t>> links;
 };
 
 
@@ -173,6 +191,7 @@ public:
 	void linkBuildNodes(size_t n1, size_t n2) {
 		buildNodes[n1]->next.insert(n2);
 		buildNodes[n2]->prev.insert(n1);
+		model->links.push_back(std::make_pair(n1,n2));
 	}
 
 	void putSpring(size_t n1, size_t n2) {
@@ -222,7 +241,7 @@ size_t NodeSystemBuilder::addNode(double mass, glm::dvec3 pos) {
 std::list<glm::dvec3> fillSpace(glm::dvec3 from, glm::dvec3 to, size_t subNodes) {
 
 	std::list<glm::dvec3> list;
-	glm::dvec3 segment = (from - to) / (subNodes + 1.0);
+	glm::dvec3 segment = (to - from) / (subNodes + 1.0);
 	for (size_t i = 1; i <= subNodes; ++i)
 		list.push_back(from + segment * (double) i);
 	return list;

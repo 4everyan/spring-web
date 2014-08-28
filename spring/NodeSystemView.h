@@ -10,16 +10,18 @@
 
 #include <memory>
 #include "model/INodeSystem.h"
+#include "Camera.h"
 
 
 class NodeSystemView
 {
 public:
-	NodeSystemView(std::shared_ptr<INodeSystem> model);
-	void render();
+	NodeSystemView(std::shared_ptr<INodeSystem> model, float chainWidth);
+	void render(std::shared_ptr<Camera> camera);
 
 private:
 	std::shared_ptr<INodeSystem> model;
+	float chainWidth;
 };
 
 #endif /* NODESYSTEMVIEW_H_ */
