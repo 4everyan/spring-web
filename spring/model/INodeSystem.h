@@ -9,10 +9,11 @@
 #define INODESYSTEM_H_
 
 #include <glm/glm.hpp>
+#include "OdeSystem.h"
 #include "INode.h"
 
 
-class INodeSystem
+class INodeSystem: public IOdeSystem
 {
 public:
 	enum CoordsLayout {

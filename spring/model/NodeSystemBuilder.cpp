@@ -11,6 +11,7 @@
 #include <memory>
 #include "NodeSystemBuilder.h"
 #include "Constraints.h"
+#include "OdeFramedSolver.h"
 
 
 class Node: public INode
@@ -83,12 +84,62 @@ private:
 class NodeSystemImpl: public INodeSystem
 {
 public:
-    size_t getNumberOfNodes() const override {
+	virtual size_t getNumberOfNodes() const override {
     	return nodes.size();
     }
 
-    std::shared_ptr<INode> getNode(size_t id) const override {
+    virtual std::shared_ptr<INode> getNode(size_t id) const override {
     	return nodes.at(id);
+    }
+
+    // calculate derivative vector and store it in outputDerivs
+    virtual int getDerivative(double t, gsl::base_const_vector& inputCoords, gsl::base_vector& outputDerivs) {
+
+        // nullifying node forces
+        for (auto& node: nodes) {
+        	node->resetForce();
+        }
+        // applying forces
+        for (auto& constraint: constraints) {
+        	constraint->solve();
+        }
+        glm::dvec3 position;
+        glm::dvec3 velocity;
+
+        size_t stride = INodeSystem::CoordsNum;
+        size_t size = nodes.size();
+
+        auto u = gsl::vector_const_view(inputCoords, U, stride, size);
+        auto v = gsl::vector_const_view(inputCoords, V, stride, size);
+        auto w = gsl::vector_const_view(inputCoords, W, stride, size);
+
+        auto dx = gsl::vector_view(outputDerivs, X, stride, size);
+        auto dy = gsl::vector_view(outputDerivs, Y, stride, size);
+        auto dz = gsl::vector_view(outputDerivs, Z, stride, size);
+        auto du = gsl::vector_view(outputDerivs, U, stride, size);
+        auto dv = gsl::vector_view(outputDerivs, V, stride, size);
+        auto dw = gsl::vector_view(outputDerivs, W, stride, size);
+
+        glm::dvec3 derivs;
+
+        for (size_t n = 0; n < nodes.size(); ++n) {
+        	auto vel = nodes[n]->getVelocity();
+        	auto acc = nodes[n]->getAcceleration();
+
+            dx[n] = vel.x;
+            dy[n] = vel.y;
+            dz[n] = vel.z;
+
+            du[n] = acc.x;
+            dv[n] = acc.y;
+            dw[n] = acc.z;
+        }
+        return GSL_SUCCESS;
+    }
+
+    // returns the dimension of the system
+    virtual size_t getDimension() const {
+    	return nodes.size() * CoordsNum;
     }
 
 public:
@@ -113,6 +164,7 @@ public:
 	std::vector<std::shared_ptr<BuildNode>> buildNodes;
 	std::set<std::pair<size_t,size_t>> links;
 	std::shared_ptr<NodeSystemImpl> model;
+
 	double defaultSubNodeMass = 1.0;
 	double defaultSpringStiffness = 1.0;
 	double defaultTorsionSpringStiffness = 1.0;
@@ -129,6 +181,11 @@ public:
 		double length = glm::length(p1->getPosition() - p2->getPosition());
 		auto spring = std::make_shared<SpringConstraint>(model, n1, n2, length, defaultSpringStiffness);
 		model->constraints.insert(spring);
+	}
+
+	void putTorsionSpring(size_t n1, size_t n2, size_t n3) {
+		auto torsionSpring = std::make_shared<TorsionSpringConstraint>(model, n1, n2, n3, defaultTorsionSpringStiffness);
+		model->constraints.insert(torsionSpring);
 	}
 };
 
@@ -211,8 +268,7 @@ std::shared_ptr<INodeSystem> NodeSystemBuilder::create() {
 	for (auto& center: me->buildNodes) {
 		for (auto& left: center->prev) {
 			for (auto& right: center->next) {
-				auto torsionSpring = std::make_shared<TorsionSpringConstraint>(me->model, left, center->id, right, me->defaultTorsionSpringStiffness);
-				me->model->constraints.insert(torsionSpring);
+				me->putTorsionSpring(left, center->id, right);
 			}
 		}
 	}
