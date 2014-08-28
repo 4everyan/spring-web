@@ -10,6 +10,7 @@
 
 #include <glm/glm.hpp>
 #include "INodeSystem.h"
+#include "IConstraint.h"
 
 
 class NodeSystemBuilder
@@ -21,6 +22,7 @@ public:
 	size_t addNode(double mass, glm::dvec3 pos, glm::dvec3 vel);
 	size_t addNode(double mass, glm::dvec3 pos);
 
+	void addConstraint(std::shared_ptr<IConstraint> constraint);
 	void setSubNodeMass(double mass);
 	void linkNodes(size_t n1, size_t n2);
 

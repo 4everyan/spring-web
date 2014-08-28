@@ -9,8 +9,8 @@
 #include <vector>
 #include <list>
 #include <glm/glm.hpp>
-#include "gsl_helper.h"
-#include "OdeSystem.h"
+#include "model/gsl_helper.h"
+#include "model/OdeSystem.h"
 
 
 
