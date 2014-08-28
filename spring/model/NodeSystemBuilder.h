@@ -23,8 +23,11 @@ public:
 	size_t addNode(double mass, glm::dvec3 pos);
 
 	void addConstraint(std::shared_ptr<IConstraint> constraint);
-	void setSubNodeMass(double mass);
 	void linkNodes(size_t n1, size_t n2);
+
+	void setDefaultSubNodeMass(double mass);
+	void setDefaultSpringStiffness(double stiffness);
+	void setDefaultTorsionSpringStiffness(double stiffness);
 
 	std::shared_ptr<INodeSystem> create();
 

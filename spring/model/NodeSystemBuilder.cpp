@@ -258,12 +258,20 @@ std::list<glm::dvec3> fillSpace(glm::dvec3 from, glm::dvec3 to, size_t subNodes)
 	return list;
 }
 
-void NodeSystemBuilder::setSubNodeMass(double mass) {
+void NodeSystemBuilder::addConstraint(std::shared_ptr<IConstraint> constraint) {
+	me->model->constraints.insert(constraint);
+}
+
+void NodeSystemBuilder::setDefaultSubNodeMass(double mass) {
 	me->defaultSubNodeMass = mass;
 }
 
-void NodeSystemBuilder::addConstraint(std::shared_ptr<IConstraint> constraint) {
-	me->model->constraints.insert(constraint);
+void NodeSystemBuilder::setDefaultSpringStiffness(double stiffness) {
+	me->defaultSpringStiffness = stiffness;
+}
+
+void NodeSystemBuilder::setDefaultTorsionSpringStiffness(double stiffness) {
+	me->defaultTorsionSpringStiffness = stiffness;
 }
 
 std::shared_ptr<INodeSystem> NodeSystemBuilder::create() {
