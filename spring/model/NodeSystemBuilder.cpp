@@ -203,7 +203,18 @@ public:
 	}
 
 	void putTorsionSpring(size_t n1, size_t n2, size_t n3) {
-		auto torsionSpring = std::make_shared<TorsionSpringForce>(n1, n2, n3, defaultTorsionSpringStiffness);
+
+		auto leftNode = model->getNode(n1);
+		auto centerNode = model->getNode(n2);
+		auto rightNode = model->getNode(n3);
+
+		glm::dvec3 p1 = leftNode->getPosition() - centerNode->getPosition();
+		glm::dvec3 p2 = rightNode->getPosition() - centerNode->getPosition();
+
+		double cos_theta = glm::dot(p1,p2) / glm::length(p1) / glm::length(p2);
+		double theta = ::acos(cos_theta); // всегда в пределах [0;pi]
+
+		auto torsionSpring = std::make_shared<TorsionSpringForce>(n1, n2, n3, defaultTorsionSpringStiffness, theta);
 		model->constraints.insert(torsionSpring);
 	}
 };

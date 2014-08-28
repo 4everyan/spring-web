@@ -49,11 +49,12 @@ class TorsionSpringForce: public IConstraint
 public:
 	const double angleCompareEpsilon = 0.001 * M_PI;
 
-	TorsionSpringForce(size_t left, size_t center, size_t right, double stiffness)
+	TorsionSpringForce(size_t left, size_t center, size_t right, double stiffness, double defaultAngle)
 		: left(left)
 		, center(center)
 		, right(right)
-		, stiffness(stiffness) {}
+		, stiffness(stiffness)
+		, defaultAngle(defaultAngle) {}
 
 	void solve() override;
 
@@ -62,6 +63,7 @@ private:
 	size_t center;
 	size_t right;
 	double stiffness;
+	double defaultAngle;
 };
 
 

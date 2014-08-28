@@ -51,8 +51,8 @@ void TorsionSpringForce::solve() {
 		glm::dvec3 a;
 		glm::dvec3 b;
 
-		if( fabs(theta - M_PI) > angleCompareEpsilon ) {
-			double k = stiffness * (theta - M_PI)/sin(theta);
+		if( fabs(theta - defaultAngle) > angleCompareEpsilon ) {
+			double k = stiffness * (theta - defaultAngle)/sin(theta);
 			a = k/glm::length(p1) * (p2/glm::length(p2) - p1/glm::length(p1) * cos_theta);
 			b = k/glm::length(p2) * (p1/glm::length(p1) - p2/glm::length(p2) * cos_theta);
 		}
