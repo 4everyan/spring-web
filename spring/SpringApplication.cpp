@@ -37,11 +37,11 @@ bool SpringApplication::InitializeSystem() {
 	NodeSystemBuilder builder;
 	builder.addNode(mass, glm::dvec3(-3.0, 0.0, 0.0));
 	builder.addNode(mass, glm::dvec3( 3.0, 0.0, 0.0));
-	builder.addNode(mass, glm::dvec3( 0.0, 5.0, 0.0));
+	builder.addNode(mass, glm::dvec3( 0.0, sqrt(27.0), 0.0));
 	builder.linkNodes(0, 1);
 	builder.linkNodes(1, 2);
 	builder.linkNodes(2, 0);
-	builder.addConstraint(std::make_shared<ResistanceConstraint>(model, 0.4));
+	builder.addConstraint(std::make_shared<ResistanceForce>(0.4));
 
 	model = builder.create();
 	view = std::make_shared<NodeSystemView>(model, chainWidth);

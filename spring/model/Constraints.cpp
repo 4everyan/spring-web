@@ -8,7 +8,7 @@
 #include "Constraints.h"
 
 
-void ResistanceConstraint::solve() {
+void ResistanceForce::solve() {
 	if (auto sys = system.lock()) {
 
 		for (size_t i = 0; i < sys->getNumberOfNodes(); ++i ) {
@@ -19,7 +19,7 @@ void ResistanceConstraint::solve() {
 }
 
 
-void SpringConstraint::solve() {
+void SpringForce::solve() {
 
 	if (auto sys = system.lock()) {
 
@@ -35,7 +35,7 @@ void SpringConstraint::solve() {
 }
 
 
-void TorsionSpringConstraint::solve() {
+void TorsionSpringForce::solve() {
 
 	if (auto sys = system.lock()) {
 
@@ -72,7 +72,7 @@ void TorsionSpringConstraint::solve() {
 }
 
 
-void NodeToNodeConstraint::solve() {
+void NodeToNodeForce::solve() {
 
 	if (!enabled)
 		return;
@@ -87,7 +87,7 @@ void NodeToNodeConstraint::solve() {
 }
 
 
-void SingleNodeConstantConstraint::solve() {
+void SingleNodeConstantForce::solve() {
 
 	if (!enabled)
 		return;

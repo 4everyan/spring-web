@@ -15,11 +15,11 @@
 class IConstraint
 {
 public:
-	IConstraint(std::weak_ptr<INodeSystem> system)
-		: system(system) {}
-
 	virtual ~IConstraint() {}
 
+	virtual void assignToSystem(std::weak_ptr<INodeSystem> system) {
+		this->system = system;
+	}
 	virtual void enable(bool enabled) {}
 	virtual bool isEnabled() const { return true; }
 	virtual void solve() = 0;
@@ -32,8 +32,6 @@ protected:
 class IActivatableConstraint: public IConstraint
 {
 public:
-	using IConstraint::IConstraint;
-
 	virtual void enable(bool e) override {
 		enabled = e;
 	}

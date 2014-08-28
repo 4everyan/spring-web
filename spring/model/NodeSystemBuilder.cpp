@@ -198,12 +198,12 @@ public:
 		auto p1 = model->getNode(n1);
 		auto p2 = model->getNode(n2);
 		double length = glm::length(p1->getPosition() - p2->getPosition());
-		auto spring = std::make_shared<SpringConstraint>(model, n1, n2, length, defaultSpringStiffness);
+		auto spring = std::make_shared<SpringForce>(n1, n2, length, defaultSpringStiffness);
 		model->constraints.insert(spring);
 	}
 
 	void putTorsionSpring(size_t n1, size_t n2, size_t n3) {
-		auto torsionSpring = std::make_shared<TorsionSpringConstraint>(model, n1, n2, n3, defaultTorsionSpringStiffness);
+		auto torsionSpring = std::make_shared<TorsionSpringForce>(n1, n2, n3, defaultTorsionSpringStiffness);
 		model->constraints.insert(torsionSpring);
 	}
 };
@@ -291,5 +291,8 @@ std::shared_ptr<INodeSystem> NodeSystemBuilder::create() {
 			}
 		}
 	}
+	for (auto& constraint: me->model->constraints)
+		constraint->assignToSystem(me->model);
+
 	return me->model;
 }

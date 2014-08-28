@@ -14,23 +14,22 @@
 #include "INodeSystem.h"
 
 
-class ResistanceConstraint: public IConstraint
+class ResistanceForce: public IConstraint
 {
 public:
-    ResistanceConstraint(std::weak_ptr<INodeSystem> system, double viscosity)
-        : IConstraint(system), viscosity(viscosity) {}
+    ResistanceForce(double viscosity)
+        : viscosity(viscosity) {}
 	void solve() override;
 private:
     double viscosity;
 };
 
 
-class SpringConstraint: public IConstraint
+class SpringForce: public IConstraint
 {
 public:
-    SpringConstraint(std::weak_ptr<INodeSystem> system, size_t first, size_t second, double length, double stiffness)
-        : IConstraint(system)
-		, first(first)
+    SpringForce(size_t first, size_t second, double length, double stiffness)
+        : first(first)
 		, second(second)
 		, length(length)
 		, stiffness(stiffness) {}
@@ -45,14 +44,13 @@ private:
 };
 
 
-class TorsionSpringConstraint: public IConstraint
+class TorsionSpringForce: public IConstraint
 {
 public:
 	const double angleCompareEpsilon = 0.001 * M_PI;
 
-	TorsionSpringConstraint(std::weak_ptr<INodeSystem> system, size_t left, size_t center, size_t right, double stiffness)
-		: IConstraint(system)
-		, left(left)
+	TorsionSpringForce(size_t left, size_t center, size_t right, double stiffness)
+		: left(left)
 		, center(center)
 		, right(right)
 		, stiffness(stiffness) {}
@@ -67,12 +65,11 @@ private:
 };
 
 
-class NodeToNodeConstraint: public IActivatableConstraint
+class NodeToNodeForce: public IActivatableConstraint
 {
 public:
-	NodeToNodeConstraint(std::weak_ptr<INodeSystem> system, size_t from, size_t to, double value)
-		: IActivatableConstraint(system)
-		, from(from)
+	NodeToNodeForce(size_t from, size_t to, double value)
+		: from(from)
 		, to(to)
 		, value(value) {}
 
@@ -85,12 +82,11 @@ private:
 };
 
 
-class SingleNodeConstantConstraint: public IActivatableConstraint
+class SingleNodeConstantForce: public IActivatableConstraint
 {
 public:
-	SingleNodeConstantConstraint(std::weak_ptr<INodeSystem> system, size_t node, glm::dvec3 force)
-		: IActivatableConstraint(system)
-		, node(node)
+	SingleNodeConstantForce(size_t node, glm::dvec3 force)
+		: node(node)
 		, force(force) {}
 
 	void solve() override;
